@@ -1,0 +1,154 @@
+-- Create Database
+CREATE DATABASE IF NOT EXISTS IMDB;
+USE IMDB;
+
+-- Create Movies Table
+CREATE TABLE Movies (
+    movie_id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    release_year INT,
+    description TEXT
+);
+
+-- Create Media Table
+CREATE TABLE Media (
+    media_id INT AUTO_INCREMENT PRIMARY KEY,
+    movie_id INT,
+    media_type VARCHAR(50),
+    media_url VARCHAR(255),
+    FOREIGN KEY (movie_id) REFERENCES Movies(movie_id)
+);
+
+-- Create Genres Table
+CREATE TABLE Genres (
+    genre_id INT AUTO_INCREMENT PRIMARY KEY,
+    genre_name VARCHAR(50) NOT NULL
+);
+
+-- Create MovieGenres Table (many-to-many relationship)
+CREATE TABLE MovieGenres (
+    movie_id INT,
+    genre_id INT,
+    PRIMARY KEY (movie_id, genre_id),
+    FOREIGN KEY (movie_id) REFERENCES Movies(movie_id),
+    FOREIGN KEY (genre_id) REFERENCES Genres(genre_id)
+);
+
+-- Create Users Table
+CREATE TABLE Users (
+    user_id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL
+);
+
+-- Create Reviews Table
+CREATE TABLE Reviews (
+    review_id INT AUTO_INCREMENT PRIMARY KEY,
+    movie_id INT,
+    user_id INT,
+    rating INT CHECK (rating >= 1 AND rating <= 5),
+    review_text TEXT,
+    FOREIGN KEY (movie_id) REFERENCES Movies(movie_id),
+    FOREIGN KEY (user_id) REFERENCES Users(user_id)
+);
+
+-- Create Artists Table
+CREATE TABLE Artists (
+    artist_id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    birthdate DATE
+);
+
+-- Create Skills Table
+CREATE TABLE Skills (
+    skill_id INT AUTO_INCREMENT PRIMARY KEY,
+    skill_name VARCHAR(50) NOT NULL
+);
+
+-- Create ArtistSkills Table (many-to-many relationship)
+CREATE TABLE ArtistSkills (
+    artist_id INT,
+    skill_id INT,
+    PRIMARY KEY (artist_id, skill_id),
+    FOREIGN KEY (artist_id) REFERENCES Artists(artist_id),
+    FOREIGN KEY (skill_id) REFERENCES Skills(skill_id)
+);
+
+-- Create Roles Table
+CREATE TABLE Roles (
+    role_id INT AUTO_INCREMENT PRIMARY KEY,
+    role_name VARCHAR(50) NOT NULL
+);
+
+-- Create MovieRoles Table (many-to-many relationship)
+CREATE TABLE MovieRoles (
+    movie_id INT,
+    artist_id INT,
+    role_id INT,
+    PRIMARY KEY (movie_id, artist_id, role_id),
+    FOREIGN KEY (movie_id) REFERENCES Movies(movie_id),
+    FOREIGN KEY (artist_id) REFERENCES Artists(artist_id),
+    FOREIGN KEY (role_id) REFERENCES Roles(role_id)
+);
+
+-- Insert Sample Data
+-- Movies
+INSERT INTO Movies (title, release_year, description) VALUES 
+('Inception', 2010, 'A thief who steals corporate secrets through the use of dream-sharing technology is given the inverse task of planting an idea into the mind of a C.E.O.'),
+('The Matrix', 1999, 'A computer hacker learns from mysterious rebels about the true nature of his reality and his role in the war against its controllers.');
+
+-- Media
+INSERT INTO Media (movie_id, media_type, media_url) VALUES 
+(1, 'Poster', 'http://example.com/inception/poster.jpg'),
+(1, 'Trailer', 'http://example.com/inception/trailer.mp4'),
+(2, 'Poster', 'http://example.com/matrix/poster.jpg'),
+(2, 'Trailer', 'http://example.com/matrix/trailer.mp4');
+
+-- Genres
+INSERT INTO Genres (genre_name) VALUES 
+('Sci-Fi'), 
+('Action'), 
+('Drama');
+
+-- MovieGenres
+INSERT INTO MovieGenres (movie_id, genre_id) VALUES 
+(1, 1), -- Inception is Sci-Fi
+(1, 2), -- Inception is Action
+(2, 1), -- The Matrix is Sci-Fi
+(2, 2); -- The Matrix is Action
+
+-- Users
+INSERT INTO Users (username, email) VALUES 
+('john_doe', 'john@example.com'), 
+('jane_smith', 'jane@example.com');
+
+-- Reviews
+INSERT INTO Reviews (movie_id, user_id, rating, review_text) VALUES 
+(1, 1, 5, 'Amazing movie with a complex plot.'),
+(2, 2, 4, 'Great movie with mind-blowing concepts.');
+
+-- Artists
+INSERT INTO Artists (name, birthdate) VALUES 
+('Leonardo DiCaprio', '1974-11-11'), 
+('Keanu Reeves', '1964-09-02');
+
+-- Skills
+INSERT INTO Skills (skill_name) VALUES 
+('Acting'), 
+('Directing'), 
+('Producing');
+
+-- ArtistSkills
+INSERT INTO ArtistSkills (artist_id, skill_id) VALUES 
+(1, 1), -- Leonardo DiCaprio has Acting skill
+(2, 1); -- Keanu Reeves has Acting skill
+
+-- Roles
+INSERT INTO Roles (role_name) VALUES 
+('Actor'), 
+('Director');
+
+-- MovieRoles
+INSERT INTO MovieRoles (movie_id, artist_id, role_id) VALUES 
+(1, 1, 1), -- Leonardo DiCaprio is an Actor in Inception
+(2, 2, 1); -- Keanu Reeves is an Actor in The Matrix
